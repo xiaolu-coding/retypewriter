@@ -1,7 +1,7 @@
-import _TypeIt from 'typeit'
-import { calculatePatch, diff } from './src'
+// import _TypeIt from 'typeit'
+import { calculatePatch, createAnimator, diff } from './src'
 
-const TypeIt = _TypeIt as any
+// const TypeIt = _TypeIt as any
 
 const inputEl = document.querySelector('#input') as HTMLTextAreaElement
 const outputEl = document.querySelector('#output') as HTMLTextAreaElement
@@ -43,41 +43,22 @@ outputEl.addEventListener('input', debounce(() => {
   start()
 }))
 
-let typeit: any
-
 typingEl.textContent = ''
 
-function start() {
-  if (typeit)
-    typeit.reset()
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
-  typeit = new TypeIt(typingEl, {
-    speed: 50,
-    startDelay: 900,
-  })
+async function start() {
+  // 备份，闭包保存
+  const _input = input
+  const patches = calculatePatch(diff(_input, output))
+  const animator = createAnimator(_input, patches)
 
-  const patches = calculatePatch(diff(input, output))
-  // const typingEl.value = applyPatches(input, patches)
-  typeit
-    .type(input, { instant: true })
-
-  for (const patch of patches) {
-    // typeit
-    //   .pause(800)
-    if (patch.type === 'insert') {
-      typeit
-        .move(null, { to: 'START', instant: true })
-        .move(patch.from, { instant: true })
-        .type(patch.text, { delay: 300 })
-    }
-    else {
-      typeit
-        .move(null, { to: 'START', instant: true })
-        .move(patch.from, { instant: true })
-        .delete(patch.length)
-    }
+  for (const result of animator) {
+    typingEl.textContent = result.output
+    await sleep(Math.random() * 60 + 30)
   }
-  typeit.go()
 }
 
 start()
