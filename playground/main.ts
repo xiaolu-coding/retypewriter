@@ -1,5 +1,5 @@
 // import _TypeIt from 'typeit'
-import { calculatePatch, createAnimator, diff } from './src'
+import { calculatePatch, createAnimator, diff } from '../src'
 
 // const TypeIt = _TypeIt as any
 
